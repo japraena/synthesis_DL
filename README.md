@@ -269,7 +269,6 @@ If you use these models in your research, please cite our paper:
 
 - **José Ángel Praena** - Universidad Pablo de Olavide & Universidad de Sevilla
   - Email: japrarod@upo.es
-  - ORCID: [Add if available]
   
 - **Guillermo Gil** - Universidad Pablo de Olavide
   - Email: ggilgar@upo.es
