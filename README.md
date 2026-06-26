@@ -25,7 +25,6 @@ Our approach uses a Convolutional Neural Network (CNN) to learn the complex mapp
 ```
 synthesis_DL/
 ├── README.md
-├── LICENSE
 ├── scalers/                     # Scalers and normalization files for each model
 ├── demo/                        # Demo inference files (see Quick Start below)
 └── models/
@@ -228,11 +227,11 @@ The architecture details are available upon request.
 
 If you use these models in your research, please cite our paper:
 ```bibtex
-@article{praena2024synthesis,
+@article{praena2026synthesis,
   title={Synthesis of Integrated Bragg Gratings via Deep Learning},
   author={Praena, José Ángel and Gil, Guillermo and Caballero, Fernando and Carballar, Alejandro and Merino, Luis},
   journal={IEEE Photonics Journal},
-  year={2024},
+  year={2026},
   note={Under review}
 }
 ```
@@ -266,8 +265,7 @@ We aim to respond to all inquiries within 1-2 business days.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+This project is licensed under the MIT License
 ### You are free to:
 - ✅ Use the models for research purposes
 
@@ -297,14 +295,14 @@ For other platforms or apodization profiles, please contact us for potential col
 
 ## 📝 Version History
 
-- **v1.0** (December 2025): Initial release with three trained models
+- **v1.0** (June 2026): Initial release with three trained models
   - V1_Gain: Reflectivity-only baseline
   - V2_Gain_Phase: Dual-channel without chirp
   - V3_Gain_Phase_Chirp: Full capability (recommended)
 
 ---
 
-**Last updated**: December 2025  
+**Last updated**: June 2026  
 **Repository**: https://github.com/japraena/synthesis_DL  
 **Paper status**: Under review in *IEEE Photonics Journal*  
 **Models version**: 1.0  
@@ -317,7 +315,7 @@ For other platforms or apodization profiles, please contact us for potential col
 ```
 MIT License
 
-Copyright (c) 2025 José Ángel Praena, Guillermo Gil, Fernando Caballero, Alejandro Carballar, Luis Merino
+Copyright (c) 2026 José Ángel Praena, Guillermo Gil, Fernando Caballero, Alejandro Carballar, Luis Merino
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
