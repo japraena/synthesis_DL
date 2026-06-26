@@ -1,7 +1,7 @@
 # synthesis_DL
 # Synthesis of Integrated Bragg Gratings via Deep Learning
 
-[![Under Review](https://img.shields.io/badge/Status-Under%20Review-yellow)](https://www.journals.elsevier.com/optics-and-laser-technology)
+[![Under Review](https://img.shields.io/badge/Status-Under%20Review-yellow)](https://ieeephotonics.org/publications/photonics-journal/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PyTorch](https://img.shields.io/badge/PyTorch-1.12+-ee4c2c.svg)](https://pytorch.org/)
 
@@ -9,7 +9,7 @@ Deep learning framework for the inverse design of Integrated Bragg Gratings (IBG
 
 ## 📋 Overview
 
-This repository contains the **trained neural network models** for our paper **"Synthesis of Integrated Bragg Gratings via Deep Learning"**, currently under review in *Optics and Laser Technology*.
+This repository contains the **trained neural network models** for our paper **"Synthesis of Integrated Bragg Gratings via Deep Learning"**, currently under review in *IEEE Photonics Journal*.
 
 Our approach uses a Convolutional Neural Network (CNN) to learn the complex mapping from spectral responses (reflectivity and phase) to geometric parameters, providing a fast and accurate alternative to traditional iterative synthesis methods.
 
@@ -259,7 +259,7 @@ If you use these models in your research, please cite our paper:
 @article{praena2024synthesis,
   title={Synthesis of Integrated Bragg Gratings via Deep Learning},
   author={Praena, José Ángel and Gil, Guillermo and Caballero, Fernando and Carballar, Alejandro and Merino, Luis},
-  journal={Optics and Laser Technology},
+  journal={IEEE Photonics Journal},
   year={2024},
   note={Under review}
 }
@@ -334,7 +334,7 @@ For other platforms or apodization profiles, please contact us for potential col
 
 **Last updated**: December 2025  
 **Repository**: https://github.com/japraena/synthesis_DL  
-**Paper status**: Under review in *Optics and Laser Technology*  
+**Paper status**: Under review in *IEEE Photonics Journal*  
 **Models version**: 1.0  
 **Framework**: PyTorch 1.12+
 ```
