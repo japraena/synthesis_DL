@@ -26,6 +26,8 @@ Our approach uses a Convolutional Neural Network (CNN) to learn the complex mapp
 synthesis_DL/
 ├── README.md
 ├── LICENSE
+├── scalers/                     # Scalers and normalization files for each model
+├── demo/                        # Demo inference files (see Quick Start below)
 └── models/
     ├── V1_Gain.pth              # Model trained with reflectivity only
     ├── V2_Gain_Phase.pth        # Model trained with reflectivity + phase
@@ -38,21 +40,21 @@ This repository includes **three trained models** corresponding to different sta
 
 ### Model 1: **V1_Gain.pth** - Reflectivity-only model
 - **Input**: Single-channel reflectivity spectrum R(λ)
-  - Shape: `(batch, 1, 501)` - 1 channel, 501 wavelength points from 1500-1600 nm
+  - Shape: `(batch, 1, 257)` - 1 channel, 257 wavelength points from 1500-1600 nm
 - **Architecture**: CNN with raised-cosine apodization
 - **Use case**: Baseline model for comparison
 - **Grating types**: Uniform and apodized (non-chirped)
 
 ### Model 2: **V2_Gain_Phase.pth** - Reflectivity + Phase model
 - **Input**: Dual-channel input [R(λ), φ(λ)]
-  - Shape: `(batch, 2, 501)` - 2 channels, 501 wavelength points
+  - Shape: `(batch, 2, 257)` - 2 channels, 257 wavelength points
 - **Architecture**: CNN with raised-cosine apodization
 - **Use case**: Improved accuracy with phase information
 - **Grating types**: Uniform and apodized (non-chirped)
 
 ### Model 3: **V3_Gain_Phase_Chirp.pth** - Full model with chirp support ⭐ **RECOMMENDED**
 - **Input**: Dual-channel input [R(λ), φ(λ)]
-  - Shape: `(batch, 2, 501)` - 2 channels, 501 wavelength points
+  - Shape: `(batch, 2, 257)` - 2 channels, 257 wavelength points
 - **Architecture**: CNN with raised-cosine apodization
 - **Use case**: Complete inverse design capability
 - **Grating types**: Uniform, apodized, and chirped gratings
@@ -74,7 +76,7 @@ All models predict four geometric parameters:
 
 The training dataset consists of **31,072 IBG configurations** generated using the ERI-TMM method:
 - **Spectral range**: 1500-1600 nm
-- **Wavelength points**: 501 samples
+- **Wavelength points**: 257 samples
 - **Platform**: 220 nm SOI with 500 nm waveguide width
 - **Generation time**: ~2.3 seconds per configuration (MacBook Pro M4, MATLAB, CPU-only)
 
@@ -101,84 +103,54 @@ is **available upon reasonable request** to ensure appropriate use and proper ci
 Python >= 3.8
 PyTorch >= 1.12
 NumPy >= 1.21
+scikit-learn >= 1.0
+joblib >= 1.1
+pandas >= 1.3
 ```
 
 ### Installation
 ```bash
-pip install torch numpy
+pip install torch numpy scikit-learn joblib pandas
 ```
 
-### Quick Start Example
-
-⚠️ **Note**: The exact loading procedure depends on how the models were saved. The following example assumes the most common approach (state_dict). If you encounter errors loading the model, please contact us for the model architecture definition.
-```python
-import torch
-import numpy as np
-
-# Load the recommended model
-# Note: This assumes the model was saved with torch.save(model.state_dict(), ...)
-# If loading fails, contact the authors for the model architecture definition
-model = torch.load('models/V3_Gain_Phase_Chirp.pth', map_location='cpu')
-
-# If the model was saved as state_dict, you'll need to load it into the architecture:
-# from model_architecture import IBG_CNN  # (contact authors for this file)
-# model = IBG_CNN()
-# model.load_state_dict(torch.load('models/V3_Gain_Phase_Chirp.pth'))
-
-model.eval()  # Set to evaluation mode
-
-# Prepare input: dual-channel spectral response [R(λ), φ(λ)]
-# Your reflectivity and phase data should cover 1500-1600 nm with 501 points
-reflectivity = np.array([...])  # Shape: (501,) - values between 0 and 1
-phase = np.array([...])         # Shape: (501,) - phase in radians
-
-# Stack into dual-channel input
-input_spectrum = np.stack([reflectivity, phase], axis=0)  # Shape: (2, 501)
-input_spectrum = torch.FloatTensor(input_spectrum).unsqueeze(0)  # Shape: (1, 2, 501)
-
-# Predict geometric parameters
-with torch.no_grad():  # No gradient computation needed for inference
-    predicted_params = model(input_spectrum)
-
-# Convert to numpy and extract parameters
-predicted_params = predicted_params.cpu().numpy()[0]
-
-Lambda_Bi = predicted_params[0]  # Initial Bragg period (nm)
-Lambda_Bf = predicted_params[1]  # Final Bragg period (nm)
-L = predicted_params[2]          # Length (number of periods)
-DW_max = predicted_params[3]     # Max corrugation width modulation (nm)
-
-print(f"Predicted IBG geometry:")
-print(f"  Λ_B,i = {Lambda_Bi:.3f} nm")
-print(f"  Λ_B,f = {Lambda_Bf:.3f} nm")
-print(f"  L = {L:.1f} periods")
-print(f"  ΔW_max = {DW_max:.3f} nm")
-
-# Check if grating is chirped
-if abs(Lambda_Bf - Lambda_Bi) < 0.1:
-    print("  Type: Uniform or apodized (non-chirped)")
-else:
-    print(f"  Type: Chirped (chirp rate = {Lambda_Bf - Lambda_Bi:.3f} nm)")
+### Quick Start
+We offer a demo way to run inference of model V3 with the provided script:
+```bash
+python demo/demo_inference_v3.py demo/input_spectra.csv
 ```
+Once understood, you can integrate it with your own code by following the instructions bellow.
+
+**Input CSV format** (no header):
+- Each row is one sample
+- Columns 0–256: gain at 257 frequency points (dB)
+- Columns 257–513: phase at 257 frequency points (radians) -- only for models V2 and V3
+
+We provide a demo input file "input_spectra.csv" with 36 input examples that shows the expected structure for gain+phase models (V2 and V3)
+
+Results are printed to the console and saved as `demo/predictions_<input_filename>.csv`.
+
+For a full example of how to integrate the model into your own code, see `demo_inference_v3.py`. The key steps are:
+
+1. Load the input scalers (`scaler_g.pkl`, `scaler_p.pkl`) and apply them to your data before inference.
+2. Load the model weights into the architecture with `model.load_state_dict(torch.load(...))`.
+3. Denormalise the raw output using `normalization_stats.npz` (`pred * y_std + y_mean`).
 
 ### Input Requirements
+**Wavelength range**: 1500–1600 nm  
+**Number of points**: 257 (uniformly spaced)  
+**Input shape**: `(batch_size, channels, 257)`
+- For V1_Gain: channels = 1 (gain only)
+- For V2_Gain_Phase and V3_Gain_Phase_Chirp: channels = 2 (gain + phase)
 
-**Wavelength range**: 1500-1600 nm  
-**Number of points**: 501 (uniformly spaced)  
-**Input shape**: (batch_size, channels, 501)
-- For V1_Gain: channels = 1 (reflectivity only)
-- For V2_Gain_Phase and V3_Gain_Phase_Chirp: channels = 2 (reflectivity + phase)
-
-**Reflectivity**: Normalized values between 0 and 1  
-**Phase**: In radians, typically between -π and π
+**Gain**: In dB, typically negative (reflected power relative to input)  
+**Phase**: In radians, starting from 0 and continuously increasing
 
 ### Expected Output Ranges
-
 Based on the training dataset:
-- **Λ_B,i**: 314-320 nm
-- **Λ_B,f**: 314-320 nm
-- **L**: 100-2500 periods
-- **ΔW_max**: 5-20 nm
+- **Λ_B,i**: 312–318 nm
+- **Λ_B,f**: 312–318 nm
+- **L**: 500–1500 periods
+- **ΔW_max**: 5–15 nm
 
 Predictions outside these ranges may be less reliable.
 
@@ -201,7 +173,7 @@ The training dataset was generated using ERI-TMM, a computationally efficient me
 ### CNN Architecture
 
 Our dual-channel CNN processes both reflectivity and phase information:
-- **Input layer**: (batch, 2, 501) - 2 channels × 501 wavelength samples
+- **Input layer**: (batch, 2, 257) - 2 channels × 257 wavelength samples
 - **Convolutional layers**: Extract spectral features with 1D convolutions
 - **Pooling layers**: Downsample feature maps
 - **Fully connected layers**: Map extracted features to geometric parameters
